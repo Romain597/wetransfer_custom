@@ -1,5 +1,7 @@
 <?php
 session_start();
+header('Content-type: text/html; charset=UTF-8');
+error_reporting(E_ALL);
 $date = new DateTime("now",new DateTimeZone("Europe/Paris"));
 //var_dump($date->format("Y-m-d H:i:s"));
 $func = require_once("assets/php/functions.php");
@@ -35,7 +37,9 @@ if(!isset($_SESSION["user"])) {
                     if(!empty($list)) {
                         //echo('<option name="none" value=""></option');
                         foreach($list as $value) {
-                            echo('<option value="'.$value["id"].'/'.html_entity_decode($value["name"]).'">'.html_entity_decode($value["name"]).'</option>');
+                            if(file_exists("cache/".$value["name"])) {
+                                echo('<option value="'.$value["id"].'/'.$value["name"].'">'.$value["name"].'</option>');
+                            }
                         }
                     }
                 ?>
@@ -43,8 +47,12 @@ if(!isset($_SESSION["user"])) {
                 <input id="delete-file-input" name="delete-files" class="btn btn-secondary" type="submit" value="Supprimer de la liste">
             </div>
             <div class="form-group row">
-                <label class="" for="email-input">Email</label>
-                <input id="email-input" name="email" class="form-control" type="email">
+                <label class="" for="email-to-input">Email destinataire</label>
+                <input id="email-to-input" name="email-to" class="form-control" type="email">
+            </div>
+            <div class="form-group row">
+                <label class="" for="email-from-input">Email de l'envoyeur</label>
+                <input id="email-from-input" name="email-from" class="form-control" type="email">
             </div>
             <div class="form-group row">
                 <label class="" for="subject-input">Sujet</label>

@@ -24,6 +24,7 @@ function mysql_get($sql) {
     $return_data = array();
     if($link) {
         if($sql!="") {
+            mysqli_query($link,'SET NAMES "utf8"');
             if( $result = mysqli_query($link,$sql) ) {
                 while($row= mysqli_fetch_assoc($result)) {
                     $return_data[] = $row;
@@ -42,6 +43,7 @@ function mysql_set($sql) {
     $return_data = array();
     if($link) {
         if($sql!="") {
+            mysqli_query($link,'SET NAMES "utf8"');
             mysqli_query($link,$sql);
             $id= mysqli_insert_id($link);
         }
