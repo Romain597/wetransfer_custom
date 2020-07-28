@@ -60,7 +60,7 @@ if($func) {
                 }
                 $zip->close();
                 $test = false;
-                $email_from = empty($_POST["email-from"]) ? "" : $_POST["email-from"] ;
+                $text_from = empty($_POST["text-from"]) ? "" : $_POST["text-from"] ;
                 $email_to = empty($_POST["email-to"]) ? "" : $_POST["email-to"] ;
                 $subject = empty($_POST["subject"]) ? "" : $_POST["subject"] ;
                 $description = empty($_POST["description"]) ? "" : $_POST["description"] ;
@@ -68,7 +68,14 @@ if($func) {
                     $test = true;
                 }
                 if($test) {
-                    mysql_set('INSERT INTO archive (id,name,dir,user_id,send,email_from,email_to,subject,description) VALUES (NULL,"'.$zipname.'","data/'.$zipname.'",'.$_SESSION["user"].',0,"'.$email_from.'","'.$email_to.'","'.$subject.'","'.$description.'");');
+                    mysql_set('INSERT INTO archive (id,name,dir,user_id,send,email_from,email_to,subject,description) VALUES (NULL,"'.$zipname.'","data/'.$zipname.'",'.$_SESSION["user"].',0,"'.$text_from.'","'.$email_to.'","'.$subject.'","'.$description.'");');
+                    $result = mysql_set('SELECT token FROM user WHERE id='.$_SESSION["user"].';');
+                    $token = $result['token'];
+                    $contenu_html='Bonjour,<br><br><b>'.$text_from.'</b> vous a préparer une archive ZIP à téléchargé sur <a href="https://127.0.0.1/wetransfer_custom/">WeTransferCustom</a>.';
+                    $contenu_html.='<br>Pour la télécharger, <a href="https://127.0.0.1/wetransfer_custom/download.php?name='.$zipname.'&user='.$token.'">cliquer ici</a>.<br>';
+                    $contenu_html.='Pour la supprimer, <a href="https://127.0.0.1/wetransfer_custom/download.php?name='.$zipname.'&user='.$token.'&delete=1">cliquer ici</a>.';
+                    $contenu_text='Bonjour,\n\n'.$text_from.' vous a préparer une archive ZIP à téléchargé sur WeTransferCustom.';
+                    send_mail("Transfert de fichier(s) - WeTransferCustom",$contenu_html="",$contenu_text="",[$email_to])
                 }
             } catch (Exception $e) {
                 // les erreurs sont traitées ici

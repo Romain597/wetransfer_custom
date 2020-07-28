@@ -1,7 +1,16 @@
 <?php
 session_start();
 header('Content-type: text/html; charset=UTF-8');
+
 error_reporting(E_ALL);
+ini_set('display_errors', true);
+ini_set('html_errors', true);
+
+ini_set('upload_max_filesize', '20M');
+ini_set('post_max_size', '20M');
+ini_set('max_input_time', 500);
+ini_set('max_execution_time', 500);
+
 $date = new DateTime("now",new DateTimeZone("Europe/Paris"));
 //var_dump($date->format("Y-m-d H:i:s"));
 $func = require_once("assets/php/functions.php");
@@ -24,7 +33,6 @@ if(!isset($_SESSION["user"])) {
     <div class="row">
         <form id="archive-form" action="assets/php/upload.php" class="col" method="post" enctype="multipart/form-data">
             <div class="form-group row">
-                <!--<label class="" for="input-file">Ajout fichier(s)</label>>-->
                 <input id="input-file" name="input-files" class="form-control-file" type="file" multiple files>
                 <input id="add-file-input" name="add-files" class="btn btn-secondary" type="submit" value="Ajouter fichier(s)">
             </div>
@@ -32,6 +40,7 @@ if(!isset($_SESSION["user"])) {
                 <label class="" for="files-list-select">Liste fichiers</label>
                 <select id="files-list-select" name="files-list[]" class="form-control" size="5" multiple>
                 <?php
+                //var_dump(send_mail("test","salut","",["coucou@char.fr"])); // test
                     $list = mysql_get('SELECT * FROM data WHERE user_id='.$_SESSION["user"].' ORDER BY id;');
                     //var_dump($list);
                     if(!empty($list)) {
@@ -51,8 +60,8 @@ if(!isset($_SESSION["user"])) {
                 <input id="email-to-input" name="email-to" class="form-control" type="email">
             </div>
             <div class="form-group row">
-                <label class="" for="email-from-input">Email de l'envoyeur</label>
-                <input id="email-from-input" name="email-from" class="form-control" type="email">
+                <label class="" for="text-from-input">Prénom et Nom de l'expéditeur</label>
+                <input id="text-from-input" name="text-from" class="form-control" type="text">
             </div>
             <div class="form-group row">
                 <label class="" for="subject-input">Sujet</label>
