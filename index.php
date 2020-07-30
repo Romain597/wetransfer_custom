@@ -14,9 +14,15 @@ ini_set('max_execution_time', 500);
 $date = new DateTime("now",new DateTimeZone("Europe/Paris"));
 //var_dump($date->format("Y-m-d H:i:s"));
 $func = require_once("assets/php/functions.php");
-//unset($_SESSION["user"]);
-if(!isset($_SESSION["user"])) {
-    $_SESSION["user"] = mysql_set('INSERT INTO user (id,token,last_visit) VALUES (NULL,"'.session_id().'","'.$date->format("Y-m-d H:i:s").'");');
+if(!empty($func)) {
+    clean_bdd();
+    check_if_send();
+    //unset($_SESSION["user"]);
+    if(!isset($_SESSION["user"])) {
+        $token = uniqid("",true);
+        mysql_set('INSERT INTO user (id,token,last_visit) VALUES (NULL,"'.$token.'","'.$date->format("Y-m-d H:i:s").'");');
+        $_SESSION["user"] = $token;
+    }
 }
 //var_dump($_SESSION["user"]);
 ?>
@@ -40,14 +46,16 @@ if(!isset($_SESSION["user"])) {
                 <label class="" for="files-list-select">Liste fichiers</label>
                 <select id="files-list-select" name="files-list[]" class="form-control" size="5" multiple>
                 <?php
-                //var_dump(send_mail("test","salut","",["coucou@char.fr"])); // test
-                    $list = mysql_get('SELECT * FROM data WHERE user_id='.$_SESSION["user"].' ORDER BY id;');
-                    //var_dump($list);
-                    if(!empty($list)) {
-                        //echo('<option name="none" value=""></option');
-                        foreach($list as $value) {
-                            if(file_exists("cache/".$value["name"])) {
-                                echo('<option value="'.$value["id"].'/'.$value["name"].'">'.$value["name"].'</option>');
+                    if(!empty($func)) {
+                        //var_dump(send_mail("test","salut","",["coucou@char.fr"])); // test
+                        $list = mysql_get('SELECT d.* FROM data d INNER JOIN user u ON d.user_id=u.id WHERE token="'.$_SESSION["user"].'" ORDER BY id;');
+                        //var_dump($list);
+                        if(!empty($list)) {
+                            //echo('<option name="none" value=""></option');
+                            foreach($list as $value) {
+                                if(file_exists("cache/".$value["name"])) {
+                                    echo('<option value="'.$value["id"].'/'.$value["name"].'">'.$value["name"].'</option>');
+                                }
                             }
                         }
                     }
