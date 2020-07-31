@@ -1,0 +1,30 @@
+# On suit les liens symboliques
+Options -FollowSymLinks +SymLinksIfOwnerMatch
+# Activation du mod rewrite d'Apache
+RewriteEngine On
+
+# Redirection des erreurs vers error.php
+ErrorDocument 404 /errors/error.php?e=404
+ErrorDocument 403 /errors/error.php?e=403
+ErrorDocument 500 /errors/error.php?e=500
+
+# interdits l'accès par le site aux dossiers 
+Options -Indexes
+
+# Changer le fichier index par défaut
+DirectoryIndex index.php index.html index.phtml /errors/error.php?e=403
+
+# maintenance page rewriting
+RewriteRule ^maintenance\.html$ /maintenance/maintenance_page.php [L]
+
+
+# page rewriting
+
+# localhost/nom-racine/main
+RewriteRule ^[a-zA-Z\-]+\/([a-zA-Z\-]*)\/*$ /index.php [L]
+
+# localhost/nom-racine/download/access/archive/delete
+RewriteRule ^[a-zA-Z\-]+\/download\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)\/delete\/*$ /download.php?access=$1&archive=$2&delete=1 [L]
+
+# localhost/nom-racine/download/access/archive
+RewriteRule ^[a-zA-Z\-]+\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)\/*$ /download.php?access=$1&archive=$2&delete=0 [L]

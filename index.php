@@ -12,6 +12,7 @@ ini_set('max_input_time', 500);
 ini_set('max_execution_time', 500);
 
 //$_SESSION =[];
+//var_dump(preg_split('#\,#','salut',0,PREG_SPLIT_NO_EMPTY));
 
 if(!isset($_SESSION['msg_array'])) {
     $_SESSION['msg_array'] = [];
@@ -112,7 +113,12 @@ if(!empty($func)) {
             <div class="form-group row align-items-center justify-content-center">
                 <label class="mb-0" for="email-to-input">Email(s) destinataire(s)</label>
                 <small class="text-center form-text text-muted user-select-none w-100 mt-0 mb-2">( une virgule , ou un point-virgule ; pour mettre plusieurs adresses emails )</small>
-                <input id="email-to-input" name="email-to" class="form-control" type="email">
+                <input id="email-to-input" name="email-to" class="form-control" type="email" multiple>
+            </div>
+            <div class="form-group row align-items-center justify-content-center">
+                <label class="mb-0" for="email-from-input">Email(s) expéditeur(s)</label>
+                <small class="text-center form-text text-muted user-select-none w-100 mt-0 mb-2">( une seule adresse email )</small>
+                <input id="email-from-input" name="email-from" class="form-control" type="email">
             </div>
             <div class="form-group row align-items-center justify-content-center">
                 <label for="text-from-input">Dénomination de l'expéditeur</label>
@@ -133,7 +139,10 @@ if(!empty($func)) {
             if(!empty($_SESSION['msg_array'])) {
                 echo('<div class="row my-3 align-items-center justify-content-center">');
                 if(!empty($_SESSION['msg_array']["succes"])) {
-                    echo('<p class="text-success text-center user-select-none col-12 my-0">'.$_SESSION['msg_array']["succes"].'</p>');
+                    foreach($_SESSION['msg_array']["succes"] as $key => $msg) {
+                        echo('<p class="text-success text-center user-select-none col-12 my-0">'.$msg.'</p>');
+                    }
+                    echo('<p class="text-success text-center user-select-none col-12 my-0">Il reste 10 jours à votre destinataire pour récupérer l\'archive.</p>');
                     $_SESSION =[];
                 }
                 else if(!empty($_SESSION['msg_array']["error"])) {

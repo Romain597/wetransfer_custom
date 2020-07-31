@@ -25,6 +25,8 @@ if(empty($func)) {
     if($find==true) { $func = 1; }
 }
 
+var_dump($_GET);
+
 if(!empty($func)) {
     check_if_send();
 }
@@ -57,7 +59,8 @@ if(!empty($func)) {
     if(!empty($func)) {
         if(!empty($name) && !empty($token)) {
             $date = new DateTime("now",new DateTimeZone("Europe/Paris")); // H:i:s
-            $select = mysql_get('SELECT a.id as id_archive, u.id as id_user, name, dir, nb_files, last_visit, send_date, ("'.$date->format("Y-m-d").'" BETWEEN DATE_FORMAT(send_date,"%Y-%m-%d") AND DATE_ADD(DATE_FORMAT(send_date,"%Y-%m-%d"), INTERVAL 10 DAY)) as test_date FROM archive a INNER JOIN user u ON a.user_id=u.id WHERE u.token="'.$token.'" AND a.name="'.$name.'" ;'); //AND send=1 AND "'.$date->format("Y-m-d H:i:s").'" BETWEEN send_date AND DATE_ADD(send_date, INTERVAL 10 DAY)
+            $name.='.zip';
+            $select = mysql_get('SELECT a.id as id_archive, u.id as id_user, name, dir, nb_files, last_visit, send_to_date, ("'.$date->format("Y-m-d").'" BETWEEN DATE_FORMAT(send_to_date,"%Y-%m-%d") AND DATE_ADD(DATE_FORMAT(send_to_date,"%Y-%m-%d"), INTERVAL 10 DAY)) as test_date FROM archive a INNER JOIN user u ON a.user_id=u.id WHERE u.token="'.$token.'" AND a.name="'.$name.'" ;'); //AND send=1 AND "'.$date->format("Y-m-d H:i:s").'" BETWEEN send_date AND DATE_ADD(send_date, INTERVAL 10 DAY)
             if(!empty($select)) {
                 $name = $select[0]['name'];
                 $archive_dir = $select[0]['dir'];
@@ -87,7 +90,7 @@ if(!empty($func)) {
                         else {
                             $btn=true;
                             $_SESSION = [];
-                            $send_date_text = $select[0]["send_date"];
+                            $send_date_text = $select[0]["send_to_date"];
                             $last_date_text = $select[0]["last_visit"];
                             if(!empty($send_date_text)) {
                                 $send_date = new DateTime($send_date_text,new DateTimeZone("Europe/Paris"));
@@ -113,13 +116,13 @@ if(!empty($func)) {
                         }*/
                     }
                     else {
-                        if(empty($select[0]["send"])) {
+                        if(empty($select[0]["send_to"])) {
                             $btn=true;
                             $_SESSION = [];
                             $msg='Vous pouvez télécharger votre archive !<br><br>Remarque : Aucun email n\'a été envoyé.';
                         }
                         else {
-                            $send_date_text = $select[0]["send_date"];
+                            $send_date_text = $select[0]["send_to_date"];
                             $last_date_text = $select[0]["last_visit"];
                             if(!empty($send_date_text)) {
                                 $send_date = new DateTime($send_date_text,new DateTimeZone("Europe/Paris"));
