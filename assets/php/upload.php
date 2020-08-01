@@ -1,6 +1,6 @@
 <?php
 session_start();
-$func = require_once("functions.php");
+$func = require_once(__DIR__.'/'."functions.php");
 if(empty($func)) {
     $included_files = get_included_files();
     $find = false;
@@ -22,7 +22,7 @@ if($func) {
     if(!isset($_SESSION["user"])) {
         $date = new DateTime("now",new DateTimeZone("Europe/Paris"));
         //var_dump($date->format("Y-m-d H:i:s"));
-        $token = uniqid("",true);
+        $token = preg_replace('#\.#','',uniqid("",true));
         mysql_set('INSERT INTO user (id,token,last_visit) VALUES (NULL,"'.$token.'","'.$date->format("Y-m-d H:i:s").'");');
         $_SESSION["user"] = $token;
     }
@@ -41,7 +41,7 @@ if($func) {
                         if(!empty($data[0]["sum_total"])) { $archive_size = $data[0]["sum_total"]; }
                         if(!empty($data[0]["dir"])) { $dir = $data[0]["dir"]; }
                     }
-                    if(file_exists('../../'.FOLDER_DATA.'/'.$dir)==false) { mkdir('../../'.FOLDER_DATA.'/'.$dir); }
+                    if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$dir)==false) { mkdir('../../'.FOLDER_DATA.'/'.$dir); }
                     //$error = array();
                     //var_dump($dir,preg_replace('#\.#','',uniqid('wtc-data',true)),$data);
                     $test = false;
@@ -88,9 +88,9 @@ if($func) {
                     $file_name = $file_bis[1];
                     $file_id = $file_bis[0];
                     //var_dump($file_bis);
-                    if(file_exists('../../'.FOLDER_DATA.'/'.$file_name)) {
+                    if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_name)) {
                         $test = true;
-                        unlink('../../'.FOLDER_DATA.'/'.$file_name);
+                        unlink(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_name);
                     }
                     if($test) {
                         //var_dump($test,'DELETE FROM data WHERE id='.$file_id.';');
@@ -100,11 +100,13 @@ if($func) {
             }
         }
         else if(!empty($btn_validate_files)) {
-            $text_from = empty($_POST["text-from"]) ? "" : $_POST["text-from"] ;
-            $email_to = empty($_POST["email-to"]) ? "" : $_POST["email-to"] ;
-            $subject = empty($_POST["subject"]) ? "" : $_POST["subject"] ;
-            $description = empty($_POST["description"]) ? "" : $_POST["description"] ;
-            $valid = valid_input_data($text_from,$email_to,$subject,$description);
+            $text_from = empty($_POST["text-from"]) ? "" : trim($_POST["text-from"]) ;
+            $email_to = empty($_POST["email-to"]) ? "" : trim($_POST["email-to"]) ;
+            $email_from = empty($_POST["email-from"]) ? "" : trim($_POST["email-from"]) ;
+            $subject = empty($_POST["subject"]) ? "" : trim($_POST["subject"]) ;
+            $description = empty($_POST["description"]) ? "" : trim($_POST["description"]) ;
+            $valid = valid_input_data($text_from,$email_to,$email_from,$subject,$description);
+            //var_dump($email_to);
             $error_msg = "";
             if($valid["val"]) {
                 $files = mysql_get('SELECT d.* FROM data d INNER JOIN user u ON d.user_id=u.id WHERE token="'.$_SESSION["user"].'" ORDER BY id;');
@@ -119,9 +121,9 @@ if($func) {
                         if(!empty($archives)) {
                             if(!empty($archives[0]["dir"])) { $archive_dir = $archives[0]["dir"]; }
                         }
-                        if(file_exists('../../'.FOLDER_ARCHIVE.'/'.$archive_dir)==false) { mkdir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir); }
+                        if(file_exists(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir)==false) { mkdir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir); }
                         $zip = new ZipArchive();
-                        $zipname = 'WeTransferCustom'.uniqid("",true).'.zip';
+                        $zipname = 'WeTransferCustom'.preg_replace('#\.#','',uniqid("",true)).'.zip';
                         //$zipname = 'WeTransferCustom_'.$timestamp.'.zip';
                         $archive_open = true;
                         if ($zip->open('../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$zipname, ZipArchive::CREATE)!==TRUE) {
@@ -133,7 +135,7 @@ if($func) {
                             foreach($files as $file) {
                                 $file_name = $file["name"];
                                 //$file_dir = $file["dir"];
-                                if(file_exists('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
+                                if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
                                     //$zip->addFile('../../'.FOLDER_DATA.'/'.$file_name);
                                     $zip->addFromString(basename($file_name), file_get_contents('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name));
                                 }
@@ -143,25 +145,26 @@ if($func) {
                             }
                             $zip->close();
                             $test = false;
-                            if(file_exists('../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$zipname)) {
+                            if(file_exists(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$zipname)) {
                                 $test = true;
                                 //delete_data_files($file_dir,'all',1);
                                 foreach($files as $file) {
                                     $file_name = $file["name"];
                                     //$file_dir = $file["dir"];
-                                    if(file_exists('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
-                                        unlink('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name);
+                                    if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
+                                        unlink(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name);
                                     }
                                 }
-                                $sup_f = rmdir('../../'.FOLDER_DATA.'/'.$file_dir);
+                                $sup_f = rmdir(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir);
                                 //var_dump($sup_f);
                                 mysql_set('DELETE FROM data WHERE user_id='.$user_id.';');
                             }
                             if($test) {
-                                $insert = mysql_set('INSERT INTO archive (id,name,dir,user_id,send,email_from,email_to,subject,description,nb_files,send_date) VALUES (NULL,"'.$zipname.'","'.$archive_dir.'",'.$user_id.',0,"'.$text_from.'","'.$email_to.'","'.$subject.'","'.$description.'",'.$files_count.',NULL);');
+                                $insert = mysql_set('INSERT INTO archive (id,name,dir,user_id,send_to,send_from,name_from,email_from,email_to,subject,description,nb_files,send_to_date,send_from_date) VALUES (NULL,"'.$zipname.'","'.$archive_dir.'",'.$user_id.',0,0,"'.$text_from.'","'.$email_from.'","'.$email_to.'","'.$subject.'","'.$description.'",'.$files_count.',NULL,NULL);');
                                 //$select = mysql_get('SELECT token FROM user WHERE id='.$_SESSION["user"].';');
                                 //$token = $select['token'];
                                 $token = $_SESSION["user"];
+                                //
                                 $email_to_array = preg_split('#\s*[\,\;]\s*#',$email_to,0,PREG_SPLIT_NO_EMPTY);
                                 //if(empty($text_from)) { $text_from='Quelqu\'un'; }
                                 /*$contenu_html='<p>Bonjour,</p><br><br><p><b>'.$text_from.'</b> vous a préparer une archive ZIP contenant '.$files_count.' fichier(s) à téléchargé sur <a href="http://127.0.0.1/wetransfer_custom/">WeTransferCustom</a>';
@@ -169,25 +172,47 @@ if($func) {
                                 if(!empty($description)) { $contenu_html.='<p>Message de <b>'.$text_from.'</b> :</p><br><p><b>'.$description.'</b></p><br><br>'; }
                                 $contenu_html.='<p style="text-align:center;">Pour télécharger l\'archive, <a href="http://127.0.0.1/wetransfer_custom/download.php?archive='.$zipname.'&access='.$token.'">cliquez ici</a>.</p><br><br>';
                                 $contenu_html.='<p style="text-align:center;">Pour supprimer l\'archive, <a href="http://127.0.0.1/wetransfer_custom/download.php?archive='.$zipname.'&access='.$token.'&delete=1">cliquez ici</a>.</p>';*/
-                                $contenu_html=get_email_body($zipname,$token,$files_count,$text_from,$subject,$description);
+                                $contenu_html=get_email_to_body($zipname,$token,$files_count,$text_from,$subject,$description);
                                 //$contenu_text=''; //'Bonjour,\n\n'.$text_from.' vous a préparer une archive ZIP à téléchargé sur WeTransferCustom.';
-                                $result_send_mail = send_mail("Transfert de fichier(s) - WeTransferCustom",$contenu_html,$email_to_array); //,$contenu_text
-                                if(!empty($result_send_mail["val"])) {
-                                    $date = new DateTime("now",new DateTimeZone("Europe/Paris"));
-                                    $update = mysql_set('UPDATE archive SET send=1, send_date = "'.$date->format("Y-m-d H:i:s").'"  WHERE id = '.$insert.' ;');
+                                $result_send_to_mail = send_mail("Transfert de fichier(s) - WeTransferCustom",$contenu_html,$email_to_array); //,$contenu_text
+                                if(!empty($result_send_to_mail["val"])) {
+                                    $dateA = new DateTime("now",new DateTimeZone("Europe/Paris"));
+                                    $updateA = mysql_set('UPDATE archive SET send_to=1, send_to_date = "'.$dateA->format("Y-m-d H:i:s").'"  WHERE id = '.$insert.' ;');
                                     if(count($email_to_array)>1) {
-                                        $_SESSION['msg_array']["succes"] = 'Emails envoyer.<br>Il reste 10 jours à vos destinataires pour récupérer l\'archive.';
+                                        $_SESSION['msg_array']["succes"][] = 'Emails destinataires envoyés.';
                                     }
                                     else {
-                                        $_SESSION['msg_array']["succes"] = 'Email envoyer.<br>Il reste 10 jours à votre destinataire pour récupérer l\'archive.';
+                                        $_SESSION['msg_array']["succes"][] = 'Email destinataire envoyé.';
                                     }
                                 }
                                 else {
                                     if(count($email_to_array)>1) {
-                                        $error_msg = 'Emails non envoyer. Veuillez vérifier la saisie des adresses emails !';
+                                        $error_msg = 'Emails destinataires non envoyés.<br>Veuillez vérifier la saisie des adresses emails !';
                                     }
                                     else {
-                                        $error_msg = 'Email non envoyer. Veuillez vérifier la saisie de l\'adresse email !';
+                                        $error_msg = 'Email destinataire non envoyé.<br>Veuillez vérifier la saisie de l\'adresse email !';
+                                    }
+                                }
+                                //
+                                $email_from_array = preg_split('#\s*[\,\;]\s*#',$email_from,0,PREG_SPLIT_NO_EMPTY);
+                                $contenu_html=get_email_from_body($zipname,$token,$files_count,$text_from,$email_from,$subject,$description);
+                                $result_send_from_mail = send_mail("WeTransferCustom - Information",$contenu_html,$email_from_array); //,$contenu_text
+                                if(!empty($result_send_from_mail["val"])) {
+                                    $dateB = new DateTime("now",new DateTimeZone("Europe/Paris"));
+                                    $updateB = mysql_set('UPDATE archive SET send_from=1, send_from_date = "'.$dateB->format("Y-m-d H:i:s").'"  WHERE id = '.$insert.' ;');
+                                    if(count($email_from_array)>1) {
+                                        $_SESSION['msg_array']["succes"][] = 'Emails expéditeurs envoyés.';
+                                    }
+                                    else {
+                                        $_SESSION['msg_array']["succes"][] = 'Email expéditeur envoyé.';
+                                    }
+                                }
+                                else {
+                                    if(count($email_from_array)>1) {
+                                        $error_msg = 'Emails expéditeurs non envoyés.<br>Veuillez vérifier la saisie des adresses emails !';
+                                    }
+                                    else {
+                                        $error_msg = 'Email expéditeur non envoyé.<br>Veuillez vérifier la saisie de l\'adresse email !';
                                     }
                                 }
                             }
@@ -204,7 +229,24 @@ if($func) {
                 }
             }
             else {
-                $error_msg = 'Adresse(s) email(s) non valide(s) !';
+                $error_msg = '';
+                //
+                foreach($valid as $key => $value) {
+                    if($key!="val") {
+                        if($value==false) {
+                            switch($key) {
+                                case 'email_to_test':
+                                    $error_msg .= 'Adresse(s) email(s) destinataire(s) non valide(s) !';
+                                break;
+                                case 'email_from_test':
+                                    $error_msg .= 'Adresse email expéditeur non valide !';
+                                break;
+                            }
+                        }   
+                    }
+                }
+                //
+                if(empty($error_msg)) { $error_msg = 'Adresse(s) email(s) non valide(s) !'; }
             }
             $error[] = ['msg'=>$error_msg];
         }

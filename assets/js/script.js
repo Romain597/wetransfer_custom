@@ -3,6 +3,8 @@ window.onload = () => {
     let timeoutArray = [];
     let intervalArray = [];
 
+    //alert(window.location);
+
     document.addEventListener('click',(e)=>{
         let eventClick;
 		if (!e) { e = window.event; }
@@ -21,7 +23,10 @@ window.onload = () => {
                     let indexI = intervalArray.indexOf(interval);
                     intervalArray.splice(indexI,1);
                     clearInterval(interval);
-                    document.location.href="index.php";
+                    let urlCourante = document.location.href; let urlVoulue="";
+                    if(urlCourante.indexOf('?')===-1) { urlVoulue = urlCourante.replace(/download\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)(\/delete(\/\d+)?)?(\.[a-zA-Z]+|\/)?$/,''); } else { urlVoulue = urlCourante.replace(/download\.php(\?[^\?]*)?$/,''); }
+                    //alert(urlVoulue);
+                    document.location.href=urlVoulue+"index.php";
                 },10000);
                 timeoutArray.push(timeout);
             }
