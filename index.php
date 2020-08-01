@@ -13,6 +13,11 @@ ini_set('max_execution_time', 500);
 
 //$_SESSION =[];
 //var_dump(preg_split('#\,#','salut',0,PREG_SPLIT_NO_EMPTY));
+//var_dump(__DIR__,__FILE__,dirname(__FILE__));
+//var_dump(file_exists('D:\Workspace_wamp\WeTransferCustom\../save myov'));
+//var_dump($_SERVER);
+
+//$_SESSION['WEBDIR'] = "http://".$_SERVER["HTTP_HOST"].preg_replace('#index\.php$#','',$_SERVER["PHP_SELF"]);
 
 if(!isset($_SESSION['msg_array'])) {
     $_SESSION['msg_array'] = [];
@@ -21,7 +26,7 @@ if(!isset($_SESSION['msg_array'])) {
 //$date = new DateTime("now",new DateTimeZone("Europe/Paris"));
 //var_dump($date->format("Y-m-d H:i:s"));
 
-$func = require_once("assets/php/functions.php");
+$func = require_once(__DIR__.'/'."assets/php/functions.php");
 if(empty($func)) {
     $included_files = get_included_files();
     $find = false;
@@ -52,12 +57,12 @@ if(!empty($func)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WeTransfer Romain</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo("http://".$_SERVER["HTTP_HOST"].preg_replace('#index\.php$#','',$_SERVER["PHP_SELF"])); ?>assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
-    <script defer src="assets/js/script.js"></script>
+    <script defer src="<?php echo("http://".$_SERVER["HTTP_HOST"].preg_replace('#index\.php$#','',$_SERVER["PHP_SELF"])); ?>assets/js/script.js"></script>
 </head>
 <body class="container">
     <div class="row align-items-center justify-content-center">
@@ -97,7 +102,7 @@ if(!empty($func)) {
                             if(!empty($list)) {
                                 //echo('<option name="none" value=""></option');
                                 foreach($list as $value) {
-                                    if(file_exists(FOLDER_DATA.'/'.$value["dir"].'/'.$value["name"])) {
+                                    if(file_exists(__DIR__.'/'.FOLDER_DATA.'/'.$value["dir"].'/'.$value["name"])) {
                                         echo('<option value="'.$value["id"].'}'.$value['dir'].'/'.$value["name"].'">'.$value["name"].'</option>');
                                     }
                                 }

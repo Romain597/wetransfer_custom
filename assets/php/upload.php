@@ -1,6 +1,6 @@
 <?php
 session_start();
-$func = require_once("functions.php");
+$func = require_once(__DIR__.'/'."functions.php");
 if(empty($func)) {
     $included_files = get_included_files();
     $find = false;
@@ -41,7 +41,7 @@ if($func) {
                         if(!empty($data[0]["sum_total"])) { $archive_size = $data[0]["sum_total"]; }
                         if(!empty($data[0]["dir"])) { $dir = $data[0]["dir"]; }
                     }
-                    if(file_exists('../../'.FOLDER_DATA.'/'.$dir)==false) { mkdir('../../'.FOLDER_DATA.'/'.$dir); }
+                    if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$dir)==false) { mkdir('../../'.FOLDER_DATA.'/'.$dir); }
                     //$error = array();
                     //var_dump($dir,preg_replace('#\.#','',uniqid('wtc-data',true)),$data);
                     $test = false;
@@ -88,9 +88,9 @@ if($func) {
                     $file_name = $file_bis[1];
                     $file_id = $file_bis[0];
                     //var_dump($file_bis);
-                    if(file_exists('../../'.FOLDER_DATA.'/'.$file_name)) {
+                    if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_name)) {
                         $test = true;
-                        unlink('../../'.FOLDER_DATA.'/'.$file_name);
+                        unlink(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_name);
                     }
                     if($test) {
                         //var_dump($test,'DELETE FROM data WHERE id='.$file_id.';');
@@ -121,7 +121,7 @@ if($func) {
                         if(!empty($archives)) {
                             if(!empty($archives[0]["dir"])) { $archive_dir = $archives[0]["dir"]; }
                         }
-                        if(file_exists('../../'.FOLDER_ARCHIVE.'/'.$archive_dir)==false) { mkdir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir); }
+                        if(file_exists(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir)==false) { mkdir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir); }
                         $zip = new ZipArchive();
                         $zipname = 'WeTransferCustom'.preg_replace('#\.#','',uniqid("",true)).'.zip';
                         //$zipname = 'WeTransferCustom_'.$timestamp.'.zip';
@@ -135,7 +135,7 @@ if($func) {
                             foreach($files as $file) {
                                 $file_name = $file["name"];
                                 //$file_dir = $file["dir"];
-                                if(file_exists('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
+                                if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
                                     //$zip->addFile('../../'.FOLDER_DATA.'/'.$file_name);
                                     $zip->addFromString(basename($file_name), file_get_contents('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name));
                                 }
@@ -145,17 +145,17 @@ if($func) {
                             }
                             $zip->close();
                             $test = false;
-                            if(file_exists('../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$zipname)) {
+                            if(file_exists(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$zipname)) {
                                 $test = true;
                                 //delete_data_files($file_dir,'all',1);
                                 foreach($files as $file) {
                                     $file_name = $file["name"];
                                     //$file_dir = $file["dir"];
-                                    if(file_exists('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
-                                        unlink('../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name);
+                                    if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name)) {
+                                        unlink(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir.'/'.$file_name);
                                     }
                                 }
-                                $sup_f = rmdir('../../'.FOLDER_DATA.'/'.$file_dir);
+                                $sup_f = rmdir(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$file_dir);
                                 //var_dump($sup_f);
                                 mysql_set('DELETE FROM data WHERE user_id='.$user_id.';');
                             }

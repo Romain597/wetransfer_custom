@@ -115,10 +115,10 @@ function send_mail($objet="",$contenu_html="",$destinataire=[]) { //$contenu_tex
 
     $return_value = array("val" => 0,"msg" =>'The file "vendor/autoload.php" is missing or corrupt.');
     
-    if(file_exists('../../vendor/autoload.php')) {
+    if(file_exists(__DIR__.'/'.'../../vendor/autoload.php')) {
         $return_value = array("val" => 0,"msg" =>'Error in function "send_mail".');
         
-        require_once('../../vendor/autoload.php');
+        require_once(__DIR__.'/'.'../../vendor/autoload.php');
 
         // Create the Transport (mailtrap)
         $transport = (new Swift_SmtpTransport('smtp.mailtrap.io',2525))
@@ -235,7 +235,7 @@ function get_email_from_body($zipname,$token,$nb_files,$text_from,$email_to_text
     $contenu_html.='    </table>';
     $contenu_html.='</div>';
     //$contenu_html.='<p style="text-align:center;cursor:default;margin-top:50px;">Pour supprimer l\'archive, <a target="_blank" href="http://localhost/WeTransferCustom/download.php?archive='.$zipname.'&access='.$token.'&delete=1">cliquez ici</a>.</p>';
-    $contenu_html.='<p style="text-align:center;cursor:default;margin-top:50px;">Pour supprimer l\'archive, <a target="_blank" href="http://localhost/WeTransferCustom/download/'.$token.'/'.$zipname.'/delete">cliquez ici</a>.</p>';
+    $contenu_html.='<p style="text-align:center;cursor:default;margin-top:50px;">Pour supprimer l\'archive, <a target="_blank" href="http://localhost/WeTransferCustom/download/'.$token.'/'.$zipname.'/delete/1">cliquez ici</a>.</p>';
     $contenu_html.='<p style="text-align:center;cursor:default;margin-top:40px;">Copyright WeTransferCustom 2020</p>';
     return $contenu_html;
 }
@@ -249,7 +249,7 @@ function check_if_send() {
             $test = false;
             $archive_dir = $archive["dir"];
             $zipname = $archive["name"];
-            if(file_exists('../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$zipname)) {
+            if(file_exists(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$zipname)) {
                 $test = true;
             }
             if($test) {
@@ -322,22 +322,22 @@ function get_file_error($code) {
 function delete_data_files($data_dir,$data_path,$delete_folder=1) {
     if(empty($delete_folder)) { $delete_folder = 0; } else $delete_folder = 1;
     if(!empty($data_dir) && !empty($data_path)) {
-        if(file_exists('../../'.FOLDER_DATA.'/'.$data_dir)) {
+        if(file_exists(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$data_dir)) {
             if($data_path=="all") {
-                if(sizeof(scandir('../../'.FOLDER_DATA.'/'.$data_dir))>2) {
-                    foreach(scandir('../../'.FOLDER_DATA.'/'.$data_dir) as $file) {
-                        if($file!="." && $file!="..") { unlink('../../'.FOLDER_DATA.'/'.$data_dir.'/'.$file); }
+                if(sizeof(scandir(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$data_dir))>2) {
+                    foreach(scandir(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$data_dir) as $file) {
+                        if($file!="." && $file!="..") { unlink(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$data_dir.'/'.$file); }
                     }
                 }
                 if($delete_folder==1) {
-                    $sup_f = rmdir('../../'.FOLDER_DATA.'/'.$data_dir);
+                    $sup_f = rmdir(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$data_dir);
                     //var_dump($sup_f);
                 }
             }
             else {
-                if(file_exists($data_path)) { unlink($data_path); }
-                if($delete_folder==1 && sizeof(scandir('../../'.FOLDER_DATA.'/'.$data_dir))==2) {
-                    $sup_f = rmdir('../../'.FOLDER_DATA.'/'.$data_dir);
+                if(file_exists(__DIR__.'/'.$data_path)) { unlink(__DIR__.'/'.$data_path); }
+                if($delete_folder==1 && sizeof(scandir(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$data_dir))==2) {
+                    $sup_f = rmdir(__DIR__.'/'.'../../'.FOLDER_DATA.'/'.$data_dir);
                     //var_dump($sup_f);
                 }
             }
@@ -351,23 +351,23 @@ function delete_archive_files($token,$name,$archive_dir,$archive_path) {
         $bdd = false;
     }
     if(!empty($archive_dir) && !empty($archive_path)) {
-        if(file_exists('../../'.FOLDER_ARCHIVE.'/'.$archive_dir)) {
-            if(sizeof(scandir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir))==2 && $archive_path!="all") {
-                if(file_exists($archive_path)) { unlink($archive_path); }
-                $sup_f = rmdir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir);
+        if(file_exists(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir)) {
+            if(sizeof(scandir(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir))==2 && $archive_path!="all") {
+                if(file_exists(__DIR__.'/'.$archive_path)) { unlink(__DIR__.'/'.$archive_path); }
+                $sup_f = rmdir(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir);
                 //var_dump($sup_f);
                 if($bdd) { clean_bdd($token); }
             }
             else if($archive_path=="all") {
-                foreach(scandir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir) as $file) {
-                    if($file!="." && $file!="..") { unlink('../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$file); }
+                foreach(scandir(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir) as $file) {
+                    if($file!="." && $file!="..") { unlink(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$file); }
                 }
-                $sup_f = rmdir('../../'.FOLDER_ARCHIVE.'/'.$archive_dir);
+                $sup_f = rmdir(__DIR__.'/'.'../../'.FOLDER_ARCHIVE.'/'.$archive_dir);
                 //var_dump($sup_f);
                 if($bdd) { clean_bdd($token); }
             }
             else {
-                if(file_exists($archive_path)) { unlink($archive_path); }
+                if(file_exists(__DIR__.'/'.$archive_path)) { unlink(__DIR__.'/'.$archive_path); }
                 if($bdd) { clean_bdd($token,$name); }
             }
         }

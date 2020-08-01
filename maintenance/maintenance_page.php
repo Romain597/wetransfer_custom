@@ -6,8 +6,8 @@
 <body>
 <?php 
 
-/*if(file_exists(dirname(__FILE__).'/inc/maintenance.php'))
-{ include(dirname(__FILE__).'/inc/maintenance.php'); }
+/*if(file_exists(__DIR__.'/inc/maintenance.php'))
+{ include(__DIR__.'/inc/maintenance.php'); }
 else
 { exit('Site in maintenance'); }   // exit("Fatal error : The file 'maintenance.php' in 'inc' folder is missing.");*/
 
@@ -20,7 +20,7 @@ else
 
 ?>
 
-	<h1><center>Maintenance operation under way</center></h1>
+	<h1 style="text-align:center;">Maintenance operation under way</h1>
 	
 </body>
 </html>

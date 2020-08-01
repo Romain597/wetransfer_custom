@@ -1,30 +1,47 @@
 # On suit les liens symboliques
-Options -FollowSymLinks +SymLinksIfOwnerMatch
+#Options -FollowSymLinks +SymLinksIfOwnerMatch
+Options +FollowSymLinks
 # Activation du mod rewrite d'Apache
 RewriteEngine On
 
 # Redirection des erreurs vers error.php
-ErrorDocument 404 /errors/error.php?e=404
-ErrorDocument 403 /errors/error.php?e=403
-ErrorDocument 500 /errors/error.php?e=500
+#ErrorDocument 404 /errors/error.php?e=404
+#ErrorDocument 403 /errors/error.php?e=403
+#ErrorDocument 500 /errors/error.php?e=500
 
 # interdits l'accès par le site aux dossiers 
-Options -Indexes
+Options All -Indexes
+
+# Masquer le htaccess
+#<Files .htaccess>
+ #   order allow,deny
+ #   deny from all
+#</Files>
 
 # Changer le fichier index par défaut
-DirectoryIndex index.php index.html index.phtml /errors/error.php?e=403
-
-# maintenance page rewriting
-RewriteRule ^maintenance\.html$ /maintenance/maintenance_page.php [L]
+#DirectoryIndex index.php index.html index.phtml /error/errors.php?e=403
 
 
 # page rewriting
 
-# localhost/nom-racine/main
-RewriteRule ^[a-zA-Z\-]+\/([a-zA-Z\-]*)\/*$ /index.php [L]
+#[L,QSA]
+# download/access/archive/delete
+RewriteRule ^download\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)\/delete(\/\d+)?(\.[a-zA-Z]+|\/)?$ download.php?access=$1&archive=$2&delete=1 [L]
 
-# localhost/nom-racine/download/access/archive/delete
-RewriteRule ^[a-zA-Z\-]+\/download\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)\/delete\/*$ /download.php?access=$1&archive=$2&delete=1 [L]
+# download/access/archive
+RewriteRule ^download\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)(\.[a-zA-Z]+|\/)?$ download.php?access=$1&archive=$2&delete=0 [L]
 
-# localhost/nom-racine/download/access/archive
-RewriteRule ^[a-zA-Z\-]+\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)\/*$ /download.php?access=$1&archive=$2&delete=0 [L]
+# maintenance page rewriting
+RewriteRule ^maintenance(\.[a-zA-Z\-]+)$ maintenance/maintenance_page.php [L]
+
+# main
+RewriteRule ^(?!download\.php)(([a-zA-Z]+)(\.[a-zA-Z]+)?)$ index.php [L]
+#RewriteRule ^([a-zA-Z]+)(\.[a-zA-Z]+)?$ index.php [L]
+#RewriteRule ^([a-zA-Z]*)(\.[a-zA-Z]+|\/){0,1}$ index.php [L]
+
+# Empêche l'execution de ce(s) type(s) de fichier(s) depuis l'extérieur
+#RewriteRule ^(?!index\.php|download\.php)(.*(\.[^\.]*))$ /error [F]
+#RewriteRule ^.*(\.[^\.]*)$ /error [F]
+#errors/error.php?e=403
+
+#http://localhost/WeTransferCustom/archive/wtc-archive5f24563693d7c342122702/WeTransferCustom5f24563693fc5271991835.zip
