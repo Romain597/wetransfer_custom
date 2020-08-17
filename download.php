@@ -13,9 +13,6 @@ ini_set('max_execution_time', 500);
 
 $_SESSION['msg_array'] = [];
 
-//var_dump($_SERVER);
-//$_SESSION['WEBDIR'] = "http://".$_SERVER["HTTP_HOST"].preg_replace('#download\.php$#','',$_SERVER["PHP_SELF"]);
-
 $func = require_once(__DIR__.'/'."assets/php/functions.php");
 if(empty($func)) {
     $included_files = get_included_files();
@@ -27,8 +24,6 @@ if(empty($func)) {
     }
     if($find==true) { $func = 1; }
 }
-
-//var_dump($_GET);
 
 if(!empty($func)) {
     check_if_send();
@@ -56,38 +51,31 @@ if(!empty($func)) {
     $delete = empty($_GET["delete"]) ? 0 : filter_input(INPUT_GET, 'delete', FILTER_SANITIZE_NUMBER_INT) ;
     $token = empty($_GET["access"]) ? "" : filter_input(INPUT_GET, 'access', FILTER_DEFAULT) ;
     $download = empty($_POST["download"]) ? "" : $_POST["download"] ;
-    //var_dump(INPUT_GET);
-    //var_dump(filter_input(INPUT_GET, 'archive', FILTER_DEFAULT));
 
     $btn=false;
     $msg='vous n\'avez pas accès à cette archive !';
     if(!empty($func)) {
         if(!empty($name) && !empty($token)) {
-            $date = new DateTime("now",new DateTimeZone("Europe/Paris")); // H:i:s
+            $date = new DateTime("now",new DateTimeZone("Europe/Paris"));
             $name.='.zip';
-            $select = mysql_get('SELECT a.id as id_archive, u.id as id_user, name, dir, nb_files, last_visit, send_to_date, ("'.$date->format("Y-m-d").'" BETWEEN DATE_FORMAT(send_to_date,"%Y-%m-%d") AND DATE_ADD(DATE_FORMAT(send_to_date,"%Y-%m-%d"), INTERVAL 10 DAY)) as test_date FROM archive a INNER JOIN user u ON a.user_id=u.id WHERE u.token="'.$token.'" AND a.name="'.$name.'" ;'); //AND send=1 AND "'.$date->format("Y-m-d H:i:s").'" BETWEEN send_date AND DATE_ADD(send_date, INTERVAL 10 DAY)
+            $select = mysql_get('SELECT a.id as id_archive, u.id as id_user, name, dir, nb_files, last_visit, send_to_date, ("'.$date->format("Y-m-d").'" BETWEEN DATE_FORMAT(send_to_date,"%Y-%m-%d") AND DATE_ADD(DATE_FORMAT(send_to_date,"%Y-%m-%d"), INTERVAL 10 DAY)) as test_date FROM archive a INNER JOIN user u ON a.user_id=u.id WHERE u.token="'.$token.'" AND a.name="'.$name.'" ;');
             if(!empty($select)) {
                 $name = $select[0]['name'];
                 $archive_dir = $select[0]['dir'];
                 $archive_path = FOLDER_ARCHIVE.'/'.$archive_dir.'/'.$name;
-                //var_dump($archive_path,file_exists($archive_path));
                 if(file_exists(__DIR__.'/'.$archive_path)) {
                     $archive_id = $select[0]["id_archive"];
                     $user_id = $select[0]["id_user"];
                     if(!empty($select[0]["test_date"]) && strtoupper(trim($select[0]["test_date"]))!="NULL") {
                         if(!empty($delete)) {
-                            //delete_archive_files($token,$name,$archive_dir,$archive_path);
-                            //if(file_exists(__DIR__.'/'.$archive_path)) {
-                                unlink(__DIR__.'/'.$archive_path);
-                                if(sizeof(scandir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir))==2) {
-                                    $sup_f = rmdir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir);
-                                    //var_dump($sup_f);
-                                    clean_bdd($token);
-                                }
-                                else {
-                                    clean_bdd($token,$name);
-                                }
-                            //}
+                            unlink(__DIR__.'/'.$archive_path);
+                            if(sizeof(scandir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir))==2) {
+                                $sup_f = rmdir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir);
+                                clean_bdd($token);
+                            }
+                            else {
+                                clean_bdd($token,$name);
+                            }
                             $_SESSION = [];
                             $msg='<span class="text-success">Suppression effectuée !</span><br><br><span class="text-primary">Nous vous remercions d\'avoir utilisé WeTranfersCustom !</span><br><br>Redirection sur l\'accueil dans <span id="counter">10</span> secondes.';
                             $msg.='<script defer>let intervalB = setInterval(()=>{ document.getElementById("counter").innerText = parseInt(document.getElementById("counter").innerText)-1; },1000); let timeoutB = setTimeout(()=>{ clearInterval(intervalB);let urlCourante=document.location.href;let urlVoulue="";if(urlCourante.indexOf("?")===-1){ urlVoulue=urlCourante.replace(/download\/([a-zA-Z\d]+)\/([a-zA-Z\d]+)(\/delete(\/\d+)?)?(\.[a-zA-Z]+|\/)?$/,""); } else { urlVoulue=urlCourante.replace(/download\.php(\?[^\?]*)?$/,""); } document.location.href=urlVoulue+"index.php"; },10000); </script>';
@@ -111,14 +99,6 @@ if(!empty($func)) {
                                 $msg='Vous pouvez télécharger votre archive !';
                             }
                         }
-                        /*else if(!empty($download)) {
-                            var_dump($archive_path); // ne passe pas
-                            $msg='L\'archive est en cous de téléchargement...<br><br><b>Nous vous remercions d\'avoir utilisé WeTranfersCustom !</b>';
-                            header('Content-Type: application/zip');
-                            header('Content-disposition: attachment; filename='.$name);
-                            header('Content-Length: ' . filesize($archive_path));
-                            readfile($archive_path);
-                        }*/
                     }
                     else {
                         if(empty($select[0]["send_to"])) {
@@ -144,18 +124,14 @@ if(!empty($func)) {
                             else {
                                 $msg='Vous n\'avez plus accès à cette archive !';
                             }
-                            //delete_archive_files($token,$name,$archive_dir,$archive_path);
-                            //if(file_exists(__DIR__.'/'.$archive_path)) {
-                                unlink(__DIR__.'/'.$archive_path);
-                                if(sizeof(scandir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir))==2) {
-                                    $sup_f = rmdir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir);
-                                    //var_dump($sup_f);
-                                    clean_bdd($token);
-                                }
-                                else {
-                                    clean_bdd($token,$name);
-                                }
-                            //}
+                            unlink(__DIR__.'/'.$archive_path);
+                            if(sizeof(scandir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir))==2) {
+                                $sup_f = rmdir(__DIR__.'/'.FOLDER_ARCHIVE.'/'.$archive_dir);
+                                clean_bdd($token);
+                            }
+                            else {
+                                clean_bdd($token,$name);
+                            }
                         }
                     }
                 }
@@ -176,7 +152,6 @@ if(!empty($func)) {
     }
     echo('<div class="row vh-100 align-items-center justify-content-center my-3"><div class="col-12 w-100 align-self-center">');
     if($btn) {
-        //echo('<form class="row align-items-center justify-content-center my-3" method="post" enctype="multipart/form-data"><input name="download" type="submit" value="Télécharger" class="btn btn-primary"></form>');
         echo('<div class="row align-items-center justify-content-center mb-3"><a id="download" href="'."http://".$_SERVER["HTTP_HOST"].preg_replace('#download\.php$#','',$_SERVER["PHP_SELF"]).$archive_path.'" target="_blank" class="btn btn-primary">Télécharger</a></div>');
     }
     if(!empty($msg)) {
