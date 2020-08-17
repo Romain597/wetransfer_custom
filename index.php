@@ -11,20 +11,9 @@ ini_set('post_max_size', '20M');
 ini_set('max_input_time', 500);
 ini_set('max_execution_time', 500);
 
-//$_SESSION =[];
-//var_dump(preg_split('#\,#','salut',0,PREG_SPLIT_NO_EMPTY));
-//var_dump(__DIR__,__FILE__,dirname(__FILE__));
-//var_dump(file_exists('D:\Workspace_wamp\WeTransferCustom\../save myov'));
-//var_dump($_SERVER);
-
-//$_SESSION['WEBDIR'] = "http://".$_SERVER["HTTP_HOST"].preg_replace('#index\.php$#','',$_SERVER["PHP_SELF"]);
-
 if(!isset($_SESSION['msg_array'])) {
     $_SESSION['msg_array'] = [];
 }
-
-//$date = new DateTime("now",new DateTimeZone("Europe/Paris"));
-//var_dump($date->format("Y-m-d H:i:s"));
 
 $func = require_once(__DIR__.'/'."assets/php/functions.php");
 if(empty($func)) {
@@ -41,14 +30,7 @@ if(empty($func)) {
 if(!empty($func)) {
     clean_bdd();
     check_if_send();
-    //unset($_SESSION["user"]);
-    /*if(!isset($_SESSION["user"])) {
-        $token = uniqid("",true);
-        mysql_set('INSERT INTO user (id,token,last_visit) VALUES (NULL,"'.$token.'","'.$date->format("Y-m-d H:i:s").'");');
-        $_SESSION["user"] = $token;
-    }*/
 }
-//var_dump($_SESSION["user"]);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -74,33 +56,21 @@ if(!empty($func)) {
                 <p class="text-center user-select-none col-12 my-0 align-self-center text-info font-italic">Limite de taille par archive fixé à <?php echo(MAX_ARCHIVE_MULTIPLICATOR); ?> MO.</p>
             </div>
             <div class="form-group row align-items-center justify-content-center">
-                <label for="input-file">Ajout(s) de fichier(s)</label> <!-- class="col-12" -->
-                <!--<div class="col-auto align-self-center">
-                    <input type="hidden" name="MAX_FILE_SIZE" value="<?php //echo(MAX_FILE_SIZE); ?>" />
-                    <input id="input-file" name="input-files[]" class="form-control-file" type="file" multiple>
-                </div>-->
+                <label for="input-file">Ajout(s) de fichier(s)</label>
                 <div class="align-self-center custom-file"> <!-- col-auto -->
                     <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo(MAX_FILE_SIZE); ?>" />
                     <input type="file" name="input-files[]" class="custom-file-input" id="customFileLangHTML" data-browse="Parcourir" multiple>
                     <label class="custom-file-label text-secondary" for="customFileLangHTML">Choisir un ou plusieurs fichier(s)</label>
                 </div>
-                <!--<div class="col-auto align-self-center">-->
-                    <input id="add-file-input" name="add-files" class="btn btn-secondary mt-3" type="submit" value="Ajouter fichier(s)">
-                <!--</div>-->
+                <input id="add-file-input" name="add-files" class="btn btn-secondary mt-3" type="submit" value="Ajouter fichier(s)">
             </div>
             <div class="form-group row align-items-center justify-content-center">
-                <label for="files-list-select">Liste de fichier(s)</label> <!-- class="mb-0" class="col-12" -->
-                <!--<small class="text-center form-text text-muted user-select-none w-100 mt-0 mb-2">( 1 fichier minimum )</small>-->
-                <!--<div class="col-10 align-self-center">-->
-                    <select id="files-list-select" name="files-list[]" class="form-control" size="5" multiple>
+                <label for="files-list-select">Liste de fichier(s)</label>
+                <select id="files-list-select" name="files-list[]" class="form-control" size="5" multiple>
                     <?php
-                        //var_dump($func);
                         if(!empty($func)) {
-                            //var_dump(send_mail("test","salut","",["coucou@char.fr"])); // test
                             $list = mysql_get('SELECT d.* FROM data d INNER JOIN user u ON d.user_id=u.id WHERE token="'.$_SESSION["user"].'" ORDER BY id;');
-                            //var_dump($list);
                             if(!empty($list)) {
-                                //echo('<option name="none" value=""></option');
                                 foreach($list as $value) {
                                     if(file_exists(__DIR__.'/'.FOLDER_DATA.'/'.$value["dir"].'/'.$value["name"])) {
                                         echo('<option value="'.$value["id"].'}'.$value['dir'].'/'.$value["name"].'">'.$value["name"].'</option>');
@@ -109,11 +79,8 @@ if(!empty($func)) {
                             }
                         }
                     ?>
-                    </select>
-                <!--</div>-->
-                <!--<div class="col-auto align-self-center">-->
-                    <input id="delete-file-input" name="delete-files" class="btn btn-secondary mt-3" type="submit" value="Supprimer(s) de la liste">
-                <!--</div>-->
+                </select>
+                <input id="delete-file-input" name="delete-files" class="btn btn-secondary mt-3" type="submit" value="Supprimer(s) de la liste">
             </div>
             <div class="form-group row align-items-center justify-content-center">
                 <label class="mb-0" for="email-to-input">Email(s) destinataire(s)</label>
